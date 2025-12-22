@@ -41,11 +41,11 @@ defmodule Dispatcher do
   end
 
   match "/dataset-types/*path", @json do
-    forward conn, path, "http://resource/dataset-types/"
+    forward conn, path, "http://cache/dataset-types/"
   end
 
   match "/vocabularies/*path", @json do
-    forward conn, path, "http://resource/vocabularies/"
+    forward conn, path, "http://cache/vocabularies/"
   end
 
   match "/shacl-property-shapes/*path", @json do
@@ -110,6 +110,18 @@ defmodule Dispatcher do
 
   match "/webcomponent/*path", @any do
     forward conn, path, "http://webcomponent/"
+  end
+
+  match "/polling/*path", @json do
+    Proxy.forward conn, path, "http://polling-push-update/"
+  end
+
+  match "/cache-monitor/*path", @json do
+    Proxy.forward conn, path, "http://push-update-cache-monitor/"
+  end
+
+  match "/resource-monitor/*path", @json do
+    Proxy.forward conn, path, "http://push-update-resource-monitor/"
   end
 
   match "/*_path", @html do

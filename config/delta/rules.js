@@ -222,5 +222,73 @@ export default [
       gracePeriod: 1000,
       ignoreFromSelf: true
     }
+  },
+  {
+    match: {
+      // we expect the full body to be sent in this case
+      object: { value: "http://mu.semte.ch/vocabularies/push/Update" },
+    },
+    callback: {
+      url: "http://polling-push-update/delta",
+      method: "POST",
+    },
+    options: {
+      resourceFormat: "v0.0.1",
+      gracePeriod: 100,
+      foldEffectiveChanges: false,
+      ignoreFromSelf: false,
+    },
+  },
+  {
+    match: {
+      // we expect the full body to be sent in this case
+      object: { value: "http://mu.semte.ch/vocabularies/cache/Clear" },
+    },
+    callback: {
+      url: "http://push-update-cache-monitor/delta",
+      method: "POST",
+    },
+    options: {
+      resourceFormat: "v0.0.1",
+      gracePeriod: 100,
+      foldEffectiveChanges: false,
+      ignoreFromSelf: false,
+    },
+  },
+  {
+    match: {
+      // we expect the full body to be sent in this case
+      object: { value: "http://mu.semte.ch/vocabularies/push/Tab" },
+    },
+    callback: {
+      url: "http://push-update-cache-monitor/delta",
+      method: "POST",
+    },
+    options: {
+      resourceFormat: "v0.0.1",
+      gracePeriod: 100,
+      foldEffectiveChanges: false,
+      ignoreFromSelf: false,
+    },
+  },
+  {
+    match: {
+      // we should also monitor the tabs, but this is the default if we accept everything for now.  For the tab it is
+      // assumed we receive the full body.
+      object: {
+        // value: "http://mu.semte.ch/vocabularies/push/Tab"
+      },
+    },
+    callback: {
+      url: "http://push-update-resource-monitor/.mu/delta",
+      method: "POST",
+    },
+    options: {
+      resourceFormat: "v0.0.1",
+      gracePeriod: 100,
+      foldEffectiveChanges: false,
+      ignoreFromSelf: false,
+      ropagateAllowedGroups: false,
+    },
   }
 ];

@@ -27,11 +27,15 @@ services:
       - ./config/dispatcher:/config
     restart: always
     logging: *default-logging
+    labels:
+      - "logging=true"
   delta-notifier:
-    image: semtech/mu-delta-notifier:0.4.0
+    image: semtech/mu-delta-notifier:feature-manage-allowed-group-propagation
     volumes:
       - ./config/delta:/config
     restart: always
+    labels:
+      - "logging=true"
     logging: *default-logging
   database:
     image: semtech/sparql-parser:0.0.15
@@ -44,6 +48,8 @@ services:
       - default
       - ldes-consumers
     restart: always
+    labels:
+      - "logging=true"
     logging: *default-logging
   triplestore:
     image: redpencil/virtuoso:1.2.0-rc.1
@@ -71,7 +77,7 @@ services:
     volumes:
       - ./data/files:/share
     restart: always
-    logging: *default-logging  
+    logging: *default-logging
   resource:
     image: semtech/mu-cl-resources:1.27.2
     links:
@@ -79,15 +85,29 @@ services:
     volumes:
       - ./config/resources:/config
     restart: always
+    labels:
+      - "logging=true"
     logging: *default-logging
+  cache:
+    image: semtech/mu-cache:feature-notify-on-cache-clear
+    environment:
+      CACHE_CLEAR_NOTIFY_PATH_REGEX: "^/vocabularies.*"
+    labels:
+      - "logging=true"
+    logging: *default-logging
+    links:
+      - resource:backend
   search:
     image: semtech/mu-search:0.10.0
     volumes:
       - ./config/search:/config
     restart: always
+    labels:
+      - "logging=true"
     logging: *default-logging
     environment:
-      JAVA_OPTS: "-Xms1g -Xmx4g"    
+      JAVA_OPTS: "-Xms1g -Xmx4g"
+      MAX_YAML_SIZE: 64000000
   elasticsearch:
     image: semtech/mu-search-elastic-backend:1.0.0
     volumes:
@@ -114,6 +134,26 @@ services:
       LOG_SPARQL_UPDATES: "true"
     restart: always
     logging: *default-logging
+  polling-push-update:
+    image: semtech/polling-push-updates
+    environment:
+      DEFAULT_MU_AUTH_SCOPE: "http://services.semantic.works/polling-push-updates"
+    labels:
+      - "logging=true"
+  push-update-resource-monitor:
+    image: redpencil/push-update-resource-monitor
+    environment:
+      DEFAULT_MU_AUTH_SCOPE: "http://services.semantic.works/resource-monitor"
+    labels:
+      - "logging=true"
+    logging: *default-logging
+  push-update-cache-monitor:
+    image: redpencil/push-update-cache-monitor
+    environment:
+      DEFAULT_MU_AUTH_SCOPE: "http://services.semantic.works/cache-monitor"
+    labels:
+      - "logging=true"
+    logging: *default-logging
   vocab-fetch:
     build:
       context: ./services/vocab-fetch
@@ -127,6 +167,8 @@ services:
       # (2:45 for Marine Regions for example). Perform no more than once per 24h
       UPDATE_DATASET_DUMP_CRON_PATTERN: "0 23 * * *"
     restart: always
+    labels:
+      - "logging=true"
     logging: *default-logging
   content-unification:
     build:
@@ -134,6 +176,7 @@ services:
     image: ${REG_NS:-vocabserver_app}/content-unification:${BUILD_TAG:-latest}
     volumes:
       - ./data/files:/share
+      - ./services/content-unification:/app
     environment:
       MU_APPLICATION_FILE_STORAGE_PATH: "dataset-dumps/"
       MU_SPARQL_ENDPOINT: "http://database:8890/sparql"
@@ -142,12 +185,16 @@ services:
       # FIXME: always run in dev mode to circumvent memory limitations
       MODE: "development"
     restart: always
+    labels:
+      - "logging=true"
     logging: *default-logging
   uuid-generation:
     image: redpencil/uuid-generation:0.4.0
     volumes:
       - ./config/uuid-generation/:/config
     restart: always
+    labels:
+      - "logging=true"
     logging: *default-logging
   webcomponent:
     image: ghcr.io/vlizbe/vocabserver-webcomponent:${BUILD_TAG:-latest}
@@ -161,6 +208,8 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: always
+    labels:
+      - "logging=true"
     logging: *default-logging
   vocab-configs:
     build:
@@ -174,6 +223,8 @@ services:
       MU_AUTH_ENDPOINT: "http://database:8890/sparql"
     volumes:
       - ./data/files:/share
+    labels:
+      - "logging=true"
   yasgui:
     # DEV purpose: debug built in triplestore
     image: redpencil/yasgui:latest

@@ -84,7 +84,7 @@ WHERE {
       ?task a task:Task ;
             adms:status ?old_status .
       OPTIONAL { ?task dct:modified ?old_modified }
-      
+
   }
 }""")
     query_string = query_template.substitute(
@@ -144,7 +144,7 @@ SELECT (?task as ?uri) (?uuid as ?id) ?created ?used ?operation WHERE {
         OPTIONAL { ?task task:inputContainer/ext:content ?used }
         VALUES ?operation {$task_types}
     }
-} 
+}
 ORDER BY ASC(?created)
 LIMIT 1
 """)
@@ -172,9 +172,9 @@ SELECT (?task as ?uri) (?uuid as ?id) ?created WHERE {
         dct:created ?created ;
         task:operation $operation ;
         mu:uuid ?uuid .
-        $task_contents_triples 
+        $task_contents_triples
     }
-} 
+}
 """)
     task_contents = ""
     if inputs:

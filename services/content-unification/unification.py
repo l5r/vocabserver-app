@@ -43,7 +43,7 @@ WHERE {
 # however, the user is only interested in the actual dataset uri (via prov:wasDerivedFrom)
 
 # A unified entity is connected to a vocab via one (or more) datasets, but in reality a unified entity
-# is part of a vocabulary (a vocab has one "unified dataset"), not part of "multiple" datasets. 
+# is part of a vocabulary (a vocab has one "unified dataset"), not part of "multiple" datasets.
 # As long as a concept is connected to one dataset of the vocab, the search will find it back.
 def get_ununified_batch(dest_class,
                         dest_predicate,
@@ -70,10 +70,10 @@ WHERE {
         $source_datasets
     }
     ?vocabUri ext:sourceDataset ?sourceDataset .
-    
+
     FILTER NOT EXISTS {
         GRAPH $target_graph {
-            ?targetSubject 
+            ?targetSubject
                 prov:wasDerivedFrom ?sourceSubject ;
                 a $dest_class ;
                 $dest_predicate ?sourceValue .
@@ -83,6 +83,7 @@ WHERE {
         ?sourceSubject
             a $source_class ;
             $source_path_string ?sourceValue .
+        # TODO: add free-from sparql
     }
     BIND(IRI(CONCAT($new_subject_uri_base, MD5(CONCAT(str(?vocabUri), str(?sourceSubject))))) as ?internalSubject)
 }
@@ -93,7 +94,7 @@ LIMIT $batch_size
         dest_predicate=sparql_escape_uri(dest_predicate),
         source_datasets="\n         ".join([sparql_escape_uri(source_dataset) for source_dataset in source_datasets]),
         source_class=sparql_escape_uri(source_class),
-        source_path_string=source_path_string,  # !this is already formatted as a sparql predicate path by the frontend. 
+        source_path_string=source_path_string,  # !this is already formatted as a sparql predicate path by the frontend.
         source_graph=sparql_escape_uri(source_graph),
         target_graph=sparql_escape_uri(target_graph),
         batch_size=batch_size,

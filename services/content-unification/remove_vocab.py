@@ -42,11 +42,17 @@ PREFIX adms: <http://www.w3.org/ns/adms#>
 PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
 PREFIX nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    DELETE WHERE {
+      GRAPH $graph {
+        $vocab_uri dct:modified ?modified .
+      }
+    } ;
     INSERT DATA {
       GRAPH $graph {
+        $vocab_uri dct:modified $created .
         $container_uri a nfo:DataContainer;
           mu:uuid $container_uuid;
-          ext:content $vocab_iri .
+          ext:content $vocab_uri .
         $job_uri a cogs:Job ;
           mu:uuid $job_uuid;
           dct:created $created;
@@ -82,13 +88,16 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         job_uuid=sparql_escape_string(job_uuid),
         task_uuid=sparql_escape_string(task_uuid),
         created=sparql_escape_datetime(created),
-        vocab_iri=sparql_escape_uri(vocab_iri)
+        vocab_uri=sparql_escape_uri(vocab_iri)
     )
 
     return query_string
 
 
 def run_vocab_delete_operation(vocab_uri):
+    import time
+    time.sleep(5)
+
     remove_files(vocab_uri, VOCAB_GRAPH)
     update_sudo(remove_vocab_data_dumps(vocab_uri, VOCAB_GRAPH))
 
