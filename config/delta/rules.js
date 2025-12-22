@@ -288,7 +288,7 @@ export default [
       gracePeriod: 100,
       foldEffectiveChanges: false,
       ignoreFromSelf: false,
-      ropagateAllowedGroups: false,
+      propagateAllowedGroups: false,
     },
   }
 ];
